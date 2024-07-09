@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: report-viewer
+reporting:
+  s3:
+    bucket: <>
+    access-key: <>
+    secret-key: <>
+    region: <>
+  download-location: downloads
