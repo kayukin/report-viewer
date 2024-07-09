@@ -6,5 +6,5 @@ reporting:
     bucket: <>
     access-key: <>
     secret-key: <>
-    region: <>
+    region: eu-south-1
   download-location: downloads
