@@ -7,6 +7,7 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
@@ -50,10 +51,10 @@ public class S3Service {
             ZipEntry nextEntry;
             while ((nextEntry = stream.getNextEntry()) != null) {
                 final var fileName = nextEntry.getName();
-                final var path = Paths.get(downloadDirectory.getPath(), hash(key), fileName);
                 if (fileName.contains("index.html")) {
                     indexUrl = formatUrl(key, fileName);
                 }
+                final var path = Paths.get(downloadDirectory.getPath(), hash(key), fileName);
                 final var file = path.toFile();
                 file.getParentFile().mkdirs();
                 file.createNewFile();
@@ -64,7 +65,12 @@ public class S3Service {
     }
 
     private String formatUrl(String key, String fileName) {
-        return Paths.get("downloaded", hash(key), fileName).toString();
+        final var split = fileName.split("/");
+        return UriComponentsBuilder.fromUriString(applicationProperties.apiBaseUrl())
+                .replacePath("downloaded")
+                .pathSegment(hash(key))
+                .pathSegment(split)
+                .toUriString();
     }
 
     @SneakyThrows
