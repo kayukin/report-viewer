@@ -8,3 +8,4 @@ reporting:
     secret-key: <>
     region: eu-south-1
   download-location: downloads
+  api-base-url: /

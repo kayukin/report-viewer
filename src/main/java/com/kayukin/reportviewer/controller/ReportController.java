@@ -2,26 +2,27 @@ package com.kayukin.reportviewer.controller;
 
 import com.kayukin.reportviewer.service.S3Service;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+import java.util.List;
+
+@RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/reports/")
 public class ReportController {
     private final S3Service s3Service;
 
     @GetMapping("/")
-    public String report(Model model) {
-        model.addAttribute("reports", s3Service.list());
-        return "index";
+    public List<String> listReports() {
+        return s3Service.list();
     }
 
     @GetMapping("/view")
-    public String viewReport(@RequestParam String key, Model model) {
-        final var indexUrl = s3Service.downloadAndUnpack(key);
-        model.addAttribute("link", indexUrl);
-        return "view";
+    public String viewReport(@RequestParam String key) {
+        return s3Service.downloadAndUnpack(key);
     }
 }
