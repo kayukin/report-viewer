@@ -3,9 +3,7 @@ spring:
     name: report-viewer
 reporting:
   s3:
-    bucket: <>
-    access-key: <>
-    secret-key: <>
     region: eu-south-1
+    auth-type: default
   download-location: downloads
   api-base-url: /
