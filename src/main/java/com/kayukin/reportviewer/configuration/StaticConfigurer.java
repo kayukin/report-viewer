@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
@@ -18,13 +19,15 @@ import static java.util.Objects.nonNull;
 @Configuration
 @RequiredArgsConstructor
 public class StaticConfigurer implements WebMvcConfigurer {
+    public static final String FILES_ENDPOINT = "downloaded";
     private final File downloadDirectory;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         final var path = downloadDirectory.getAbsolutePath() + File.separator;
         final var resource = new FileSystemResource(path);
-        registry.addResourceHandler("/downloaded/**")
+        registry.addResourceHandler("/" + FILES_ENDPOINT + "/**")
+                .setCacheControl(CacheControl.noCache())
                 .addResourceLocations(resource);
         serveDirectory(registry, "/", "classpath:/static/");
     }

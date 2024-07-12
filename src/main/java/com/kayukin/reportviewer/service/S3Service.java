@@ -2,13 +2,13 @@ package com.kayukin.reportviewer.service;
 
 import com.google.common.collect.Streams;
 import com.kayukin.reportviewer.configuration.ApplicationProperties;
+import com.kayukin.reportviewer.configuration.CacheConfig;
 import com.kayukin.reportviewer.dto.Report;
+import com.kayukin.reportviewer.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.util.DigestUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
@@ -21,12 +21,18 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static com.kayukin.reportviewer.configuration.CacheConfig.FILES_CACHE;
+import static com.kayukin.reportviewer.configuration.StaticConfigurer.FILES_ENDPOINT;
+
 @RequiredArgsConstructor
 @Component
 public class S3Service {
+    private static final String INDEX_HTML = "index.html";
+
     private final S3Client s3Client;
     private final File downloadDirectory;
     private final ApplicationProperties applicationProperties;
+    private final CacheConfig.NameHashGenerator nameHashGenerator;
 
     public List<Report> list() {
         final var listObjectsResponse = s3Client.listObjects(ListObjectsRequest.builder()
@@ -46,7 +52,7 @@ public class S3Service {
         return object.asByteArray();
     }
 
-    @Cacheable("files")
+    @Cacheable(value = FILES_CACHE, keyGenerator = "keyGenerator")
     @SneakyThrows
     public String downloadAndUnpack(String key) {
         final var bytes = get(key);
@@ -55,14 +61,15 @@ public class S3Service {
             ZipEntry nextEntry;
             while ((nextEntry = stream.getNextEntry()) != null) {
                 final var fileName = nextEntry.getName();
-                if (fileName.contains("index.html")) {
+                if (fileName.contains(INDEX_HTML)) {
                     indexUrl = formatUrl(key, fileName);
                 }
                 final var path = Paths.get(downloadDirectory.getPath(), hash(key), fileName);
                 final var file = path.toFile();
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-                IOUtils.copy(stream, new FileOutputStream(file));
+                FileUtils.createFileWithDirs(file);
+                try (var out = new FileOutputStream(file)) {
+                    stream.transferTo(out);
+                }
             }
         }
         return indexUrl;
@@ -71,7 +78,7 @@ public class S3Service {
     private String formatUrl(String key, String fileName) {
         final var split = fileName.split("/");
         return UriComponentsBuilder.fromUriString(applicationProperties.apiBaseUrl())
-                .replacePath("downloaded")
+                .replacePath(FILES_ENDPOINT)
                 .pathSegment(hash(key))
                 .pathSegment(split)
                 .toUriString();
@@ -79,6 +86,6 @@ public class S3Service {
 
     @SneakyThrows
     private String hash(String key) {
-        return DigestUtils.md5DigestAsHex(key.getBytes());
+        return nameHashGenerator.hash(key);
     }
 }
