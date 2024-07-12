@@ -1,29 +1,31 @@
 import './ListReports.css'
-import {
-    AppBar,
-    Backdrop,
-    Box,
-    CircularProgress,
-    IconButton,
-    List,
-    ListItem,
-    ListItemButton,
-    Toolbar,
-    Typography
-} from "@mui/material";
+import {AppBar, Backdrop, Box, CircularProgress, IconButton, Toolbar, Typography} from "@mui/material";
 import MenuIcon from '@mui/icons-material/Home';
 import {useEffect, useState} from "react";
-import {Link} from "react-router-dom";
 import {Env} from "../../Env.ts";
+import {DataGrid, GridColDef} from '@mui/x-data-grid';
+import {Link} from "react-router-dom";
 import {encodeQuery} from "../../Utils.ts";
+import {Report} from "../../dto/Report.ts";
 
 export const ListReports = () => {
-    const [reports, setReports] = useState([]);
+    const columns: GridColDef[] = [
+        {field: 'id', headerName: 'Id', width: 150},
+        {
+            field: 'name',
+            headerName: 'Name',
+            width: 300,
+            renderCell: params =>
+                <Link to={'/view?' + encodeQuery({key: params.row.name})}>{params.row.name}</Link>
+        },
+    ];
+
+    const [reports, setReports] = useState<object[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch(`${Env.API_BASE_URL}/reports/`)
-            .then(response => response.json())
+            .then(response => response.json() as Promise<Report[]>)
             .then(body => {
                 setReports(body);
                 setLoading(false);
@@ -56,12 +58,10 @@ export const ListReports = () => {
                     </Toolbar>
                 </AppBar>
                 <Toolbar/>
-                <List>
-                    {reports.map(value =>
-                        <ListItem key={value} component={Link} to={'/view?' + encodeQuery({key: value})}>
-                            <ListItemButton>{value}</ListItemButton>
-                        </ListItem>)}
-                </List>
+                <Box height={'calc(100vh - 64px)'}
+                     sx={{overflow: 'hidden'}}>
+                    <DataGrid sx={{marginX: '2%'}} columns={columns} rows={reports}/>
+                </Box>
             </Box>
         </>
     )

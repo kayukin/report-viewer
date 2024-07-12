@@ -1,6 +1,8 @@
 spring:
   application:
     name: report-viewer
+  cache:
+    
 reporting:
   s3:
     region: eu-south-1

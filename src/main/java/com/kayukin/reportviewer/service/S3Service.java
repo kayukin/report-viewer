@@ -1,6 +1,8 @@
 package com.kayukin.reportviewer.service;
 
+import com.google.common.collect.Streams;
 import com.kayukin.reportviewer.configuration.ApplicationProperties;
+import com.kayukin.reportviewer.dto.Report;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
@@ -10,7 +12,6 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
-import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -27,12 +28,15 @@ public class S3Service {
     private final File downloadDirectory;
     private final ApplicationProperties applicationProperties;
 
-    public List<String> list() {
+    public List<Report> list() {
         final var listObjectsResponse = s3Client.listObjects(ListObjectsRequest.builder()
                 .bucket(applicationProperties.s3().bucket())
                 .build());
-        return listObjectsResponse.contents().stream()
-                .map(S3Object::key)
+        return Streams.mapWithIndex(listObjectsResponse.contents().stream(),
+                        (s3Object, index) -> Report.builder()
+                                .id(String.valueOf(index))
+                                .name(s3Object.key())
+                                .build())
                 .toList();
     }
 
