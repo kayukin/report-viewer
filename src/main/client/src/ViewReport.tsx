@@ -17,7 +17,6 @@ export const ViewReport = () => {
             .then(value => value.text())
             .then(value => {
                 setLink(value);
-                setLoading(false);
             });
     }, [key]);
 
@@ -48,7 +47,7 @@ export const ViewReport = () => {
                 </Toolbar>
             </AppBar>
             <Toolbar/>
-            <iframe key={link} src={link}></iframe>
+            <iframe key={link} src={link} onLoad={() => setLoading(link == '')}></iframe>
         </>
     );
 };
