@@ -1,4 +1,4 @@
-import './App.css'
+import './ListReports.css'
 import {
     AppBar,
     Backdrop,
@@ -14,10 +14,10 @@ import {
 import MenuIcon from '@mui/icons-material/Home';
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
-import {Env} from "./Env.ts";
-import {encodeQuery} from "./Utils.ts";
+import {Env} from "../../Env.ts";
+import {encodeQuery} from "../../Utils.ts";
 
-function App() {
+export const ListReports = () => {
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -66,5 +66,3 @@ function App() {
         </>
     )
 }
-
-export default App

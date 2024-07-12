@@ -1,10 +1,11 @@
 import './ViewReport.css'
 import {Link, useSearchParams} from "react-router-dom";
 import {useEffect, useState} from "react";
-import {Env} from "./Env.ts";
-import {AppBar, Backdrop, CircularProgress, IconButton, Toolbar, Typography} from "@mui/material";
+import {Env} from "../../Env.ts"
+import {AppBar, Backdrop, Box, CircularProgress, IconButton, Toolbar, Typography} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Home";
-import {encodeQuery} from "./Utils.ts";
+import {encodeQuery} from "../../Utils.ts";
+import {IFrame} from "../IFrame"
 
 export const ViewReport = () => {
     const [searchParams] = useSearchParams();
@@ -47,7 +48,10 @@ export const ViewReport = () => {
                 </Toolbar>
             </AppBar>
             <Toolbar/>
-            <iframe key={link} src={link} onLoad={() => setLoading(link == '')}></iframe>
+            <Box height={'calc(100vh - 64px)'}
+                 sx={{overflow: 'hidden'}}>
+                <IFrame src={link} onLoad={() => setLoading(link == '')}/>
+            </Box>
         </>
     );
 };
