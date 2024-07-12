@@ -1,5 +1,16 @@
 import './App.css'
-import {AppBar, Box, IconButton, List, ListItem, ListItemButton, Toolbar, Typography} from "@mui/material";
+import {
+    AppBar,
+    Backdrop,
+    Box,
+    CircularProgress,
+    IconButton,
+    List,
+    ListItem,
+    ListItemButton,
+    Toolbar,
+    Typography
+} from "@mui/material";
 import MenuIcon from '@mui/icons-material/Home';
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
@@ -7,16 +18,26 @@ import {Env} from "./Env.ts";
 import {encodeQuery} from "./Utils.ts";
 
 function App() {
-    const [reports, setReports] = useState([])
+    const [reports, setReports] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch(`${Env.API_BASE_URL}/reports/`)
             .then(response => response.json())
-            .then(body => setReports(body));
+            .then(body => {
+                setReports(body);
+                setLoading(false);
+            });
     }, []);
 
     return (
         <>
+            <Backdrop
+                sx={{color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1}}
+                open={loading}
+            >
+                <CircularProgress color="inherit"/>
+            </Backdrop>
             <Box sx={{width: '100%', bgcolor: 'background.paper'}}>
                 <AppBar position="fixed">
                     <Toolbar>
