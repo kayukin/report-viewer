@@ -2,7 +2,7 @@
 <br/>
 <div align="center">
 <a href="https://github.com/kayukin/report-viewer">
-<img src="https://raw.githubusercontent.com/kayukin/report-viewer/master/src/main/client/public/vite.svg" alt="Logo" width="32" height="32">
+<img src="https://raw.githubusercontent.com/kayukin/report-viewer/master/src/main/client/public/logo.svg" alt="Logo" width="32" height="32">
 </a>
 <h3 align="center">Report viewer</h3>
 <p align="center">
