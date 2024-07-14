@@ -8,6 +8,8 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import {ViewReport} from './components/ViewReport'
 import {ListReports} from "./components/ListReports";
+import {toast, ToastContainer} from "react-toastify";
+import axios from "axios";
 
 const router = createBrowserRouter([
     {
@@ -19,8 +21,16 @@ const router = createBrowserRouter([
         element: <ViewReport/>,
     },
 ]);
+axios.interceptors.response.use(response => response, error => {
+    toast.error("Failed to fetch data", {
+        position: "top-center",
+        autoClose: false
+    });
+    return Promise.reject(error);
+});
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <RouterProvider router={router}/>
+        <ToastContainer/>
     </React.StrictMode>,
 )

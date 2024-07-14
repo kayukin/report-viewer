@@ -1,14 +1,16 @@
 import './ListReports.css'
-import {AppBar, Backdrop, Box, CircularProgress, IconButton, Toolbar, Typography} from "@mui/material";
+import "react-toastify/dist/ReactToastify.css";
+import {AppBar, Box, IconButton, Toolbar, Typography} from "@mui/material";
 import MenuIcon from '@mui/icons-material/Home';
 import {useEffect, useState} from "react";
 import {Env} from "../../Env.ts";
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import {Link} from "react-router-dom";
 import {encodeQuery} from "../../Utils.ts";
-import {Report} from "../../dto/Report.ts";
+import axios from "axios";
 
 export const ListReports = () => {
+
     const columns: GridColDef[] = [
         {field: 'id', headerName: 'Id', width: 150},
         {
@@ -24,22 +26,15 @@ export const ListReports = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${Env.API_BASE_URL}/reports/`)
-            .then(response => response.json() as Promise<Report[]>)
+        axios.get(`${Env.API_BASE_URL}/reports/`)
             .then(body => {
-                setReports(body);
-                setLoading(false);
-            });
+                setReports(body.data);
+            })
+            .finally(() => setLoading(false))
     }, []);
 
     return (
         <>
-            <Backdrop
-                sx={{color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1}}
-                open={loading}
-            >
-                <CircularProgress color="inherit"/>
-            </Backdrop>
             <Box sx={{width: '100%', bgcolor: 'background.paper'}}>
                 <AppBar position="fixed">
                     <Toolbar>
@@ -60,7 +55,11 @@ export const ListReports = () => {
                 <Toolbar/>
                 <Box height={'calc(100vh - 64px)'}
                      sx={{overflow: 'hidden'}}>
-                    <DataGrid sx={{marginX: '2%'}} columns={columns} rows={reports}/>
+                    <DataGrid sx={{marginX: '2%'}}
+                              columns={columns}
+                              rows={reports}
+                              loading={loading}
+                    />
                 </Box>
             </Box>
         </>

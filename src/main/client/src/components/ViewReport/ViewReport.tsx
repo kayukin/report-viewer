@@ -6,6 +6,7 @@ import {AppBar, Backdrop, Box, CircularProgress, IconButton, Toolbar, Typography
 import MenuIcon from "@mui/icons-material/Home";
 import {encodeQuery} from "../../Utils.ts";
 import {IFrame} from "../IFrame"
+import axios from "axios";
 
 export const ViewReport = () => {
     const [searchParams] = useSearchParams();
@@ -14,11 +15,11 @@ export const ViewReport = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${Env.API_BASE_URL}/reports/view?` + encodeQuery({key}))
-            .then(value => value.text())
+        axios.get(`${Env.API_BASE_URL}/reports/view?` + encodeQuery({key}))
             .then(value => {
-                setLink(value);
-            });
+                setLink(value.data);
+            })
+            .finally(() => setLoading(false));
     }, [key]);
 
     return (
