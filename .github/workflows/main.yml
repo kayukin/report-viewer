@@ -34,9 +34,9 @@ jobs:
           mvn clean
           mvn -B package --file pom.xml
 
-      - name: Get current pom version of project
+      - name: Extract Maven project version
+        run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
         id: pom-version
-        uses: PERES-Richard/maven-get-version-action@v3.0.0
 
       - name: build the docker image
         uses: docker/build-push-action@v6
