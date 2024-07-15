@@ -90,6 +90,13 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v4
 
+      - name: Version Increment
+        uses: reecetech/version-increment@2024.4.4
+        id: version
+        with:
+          scheme: semver
+          increment: patch
+
       - name: release
         uses: softprops/action-gh-release@v2
         with:
