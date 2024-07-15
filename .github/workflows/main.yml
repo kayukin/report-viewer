@@ -43,6 +43,8 @@ jobs:
   docker-push:
     name: Docker push
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     needs:
       - maven-build
     steps:
@@ -90,14 +92,7 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v4
 
-      - name: Version Increment
-        uses: reecetech/version-increment@2024.4.4
-        id: version
-        with:
-          scheme: semver
-          increment: patch
-
       - name: release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ jobs.docker-push.outputs.version }}
