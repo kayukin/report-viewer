@@ -95,4 +95,4 @@ jobs:
       - name: release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ jobs.docker-push.outputs.version }}
+          tag_name: ${{ needs.docker-push.outputs.version }}
