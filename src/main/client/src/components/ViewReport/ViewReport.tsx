@@ -19,7 +19,7 @@ export const ViewReport = () => {
             .then(value => {
                 setLink(value.data);
             })
-            .finally(() => setLoading(false));
+            .catch(() => setLoading(false));
     }, [key]);
 
     return (
