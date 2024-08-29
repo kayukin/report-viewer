@@ -132,7 +132,7 @@
                         </goals>
                         <configuration>
                             <workingDirectory>src/main/client</workingDirectory>
-                            <executable>npm</executable>
+                            <executable>pnpm</executable>
                             <arguments>
                                 <argument>install</argument>
                             </arguments>
@@ -146,9 +146,8 @@
                         </goals>
                         <configuration>
                             <workingDirectory>src/main/client</workingDirectory>
-                            <executable>npm</executable>
+                            <executable>pnpm</executable>
                             <arguments>
-                                <argument>run</argument>
                                 <argument>build</argument>
                             </arguments>
                         </configuration>
