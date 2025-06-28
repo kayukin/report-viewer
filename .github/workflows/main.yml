@@ -5,8 +5,8 @@ on:
       - master
 
 jobs:
-  maven-build:
-    name: Maven build
+  gradle-build:
+    name: Gradle build
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
@@ -17,33 +17,33 @@ jobs:
         with:
           distribution: 'oracle'
           java-version: 21
-          cache: maven
+          cache: gradle
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
-          version: 9
+          version: 10
 
       - name: setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 20.9.0
+          node-version: 22.17.0
           cache: pnpm
           cache-dependency-path: src/main/client/pnpm-lock.yaml
 
       - name: unit tests
-        run: mvn -B test --file pom.xml
+        run: ./gradlew test
 
       - name: build the app
         run: |
-          mvn clean
-          mvn -B package --file pom.xml
+          ./gradlew clean
+          ./gradlew bootJar
 
       - name: upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: jar
-          path: target/report-viewer-0.0.1-SNAPSHOT.jar
+          path: build/libs/report-viewer-0.0.1-SNAPSHOT.jar
 
   docker-push:
     name: Docker push
@@ -51,7 +51,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     needs:
-      - maven-build
+      - gradle-build
     steps:
       - name: checkout code
         uses: actions/checkout@v4
