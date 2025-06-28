@@ -6,6 +6,7 @@ import com.kayukin.reportviewer.configuration.CacheConfig
 import com.kayukin.reportviewer.configuration.StaticConfigurer
 import com.kayukin.reportviewer.dto.Report
 import com.kayukin.reportviewer.utils.FileUtils
+import com.kayukin.reportviewer.utils.entriesAsSequence
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
 import org.springframework.web.util.UriComponentsBuilder
@@ -54,25 +55,31 @@ class S3Service(
     }
 
     @Cacheable(value = ["files"], keyGenerator = "keyGenerator")
-    fun downloadAndUnpack(key: String): String? {
+    fun downloadAndUnpack(key: String): List<String> {
         val bytes = get(key)
-        var indexUrl: String? = null
-        ZipInputStream(ByteArrayInputStream(bytes)).use { stream ->
-            var nextEntry: ZipEntry?
-            while ((stream.getNextEntry().also { nextEntry = it }) != null) {
-                val fileName = nextEntry!!.getName()
-                if (fileName.contains(INDEX_HTML)) {
-                    indexUrl = formatUrl(key, fileName)
-                }
-                val path = Paths.get(downloadDirectory.getPath(), hash(key), fileName)
-                val file = path.toFile()
-                FileUtils.createFileWithDirs(file)
-                FileOutputStream(file).use { out ->
-                    stream.transferTo(out)
-                }
-            }
+        return ZipInputStream(ByteArrayInputStream(bytes)).use { stream ->
+            stream.entriesAsSequence()
+                .filter { !it.isDirectory }
+                .map { saveZipEntryToFile(it, key, stream) }
+                .filter { it.contains(INDEX_HTML) }
+                .map { formatUrl(key, it) }
+                .toList()
         }
-        return indexUrl
+    }
+
+    private fun saveZipEntryToFile(
+        entry: ZipEntry,
+        key: String,
+        stream: ZipInputStream
+    ): String {
+        val fileName = entry.name
+        val path = Paths.get(downloadDirectory.path, hash(key), fileName)
+        val file = path.toFile()
+        FileUtils.createFileWithDirs(file)
+        FileOutputStream(file).use { out ->
+            stream.transferTo(out)
+        }
+        return fileName
     }
 
     private fun formatUrl(key: String, fileName: String): String {
