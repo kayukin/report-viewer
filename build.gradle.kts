@@ -3,7 +3,6 @@ plugins {
     kotlin("plugin.spring") version "1.9.25"
     id("org.springframework.boot") version "3.5.3"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.22"
 }
 
 group = "com.kayukin"
@@ -48,12 +47,4 @@ val pnpmBuild by tasks.registering(Exec::class) {
 
 tasks.named("processResources") {
     dependsOn(pnpmBuild)
-}
-
-
-allOpen {
-    annotation("org.springframework.stereotype.Component")
-    annotation("org.springframework.stereotype.Service")
-    annotation("org.springframework.web.bind.annotation.RestController")
-    annotation("org.springframework.context.annotation.Configuration")
 }

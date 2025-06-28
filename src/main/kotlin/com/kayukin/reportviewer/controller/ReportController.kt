@@ -17,7 +17,7 @@ class ReportController(private val s3Service: S3Service) {
     }
 
     @GetMapping("/view")
-    fun viewReport(@RequestParam key: String): String? {
+    fun viewReport(@RequestParam key: String): List<String> {
         return s3Service.downloadAndUnpack(key)
     }
 }
