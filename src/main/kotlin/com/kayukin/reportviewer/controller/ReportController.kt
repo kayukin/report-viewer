@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 class ReportController(private val s3Service: S3Service) {
 
     @GetMapping("/")
-    fun listReports(): MutableList<Report?> {
+    fun listReports(): List<Report> {
         return s3Service.list()
     }
 

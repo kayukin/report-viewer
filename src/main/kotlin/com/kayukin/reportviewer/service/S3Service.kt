@@ -1,6 +1,5 @@
 package com.kayukin.reportviewer.service
 
-import com.google.common.collect.Streams
 import com.kayukin.reportviewer.configuration.ApplicationProperties
 import com.kayukin.reportviewer.configuration.CacheConfig
 import com.kayukin.reportviewer.configuration.StaticConfigurer
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.util.UriComponentsBuilder
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest
-import software.amazon.awssdk.services.s3.model.S3Object
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -27,24 +25,17 @@ class S3Service(
     private val applicationProperties: ApplicationProperties,
     private val nameHashGenerator: CacheConfig.NameHashGenerator
 ) {
-    fun list(): MutableList<Report?> {
+    fun list(): List<Report> {
         val listObjectsResponse = s3Client.listObjects(
             ListObjectsRequest.builder()
                 .bucket(applicationProperties.s3.bucket)
                 .build()
         )
-        return Streams.mapWithIndex<S3Object?, Report?>(
-            listObjectsResponse.contents().stream(),
-            Streams.FunctionWithIndex { s3Object: S3Object?, index: Long ->
-                Report(
-                    index.toString(),
-                    s3Object!!.key()
-                )
-            })
-            .toList()
+        return listObjectsResponse.contents()
+            .mapIndexed { index, s3Object -> Report(id = index.toString(), name = s3Object.key()) }
     }
 
-    fun get(key: String?): ByteArray {
+    fun get(key: String): ByteArray {
         val obj =
             s3Client.getObjectAsBytes({ builder ->
                 builder.bucket(
@@ -83,7 +74,7 @@ class S3Service(
     }
 
     private fun formatUrl(key: String, fileName: String): String {
-        val split: Array<String?> = fileName.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val split = fileName.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         return UriComponentsBuilder.fromUriString(applicationProperties.apiBaseUrl)
             .replacePath(StaticConfigurer.FILES_ENDPOINT)
             .pathSegment(hash(key))
@@ -91,7 +82,7 @@ class S3Service(
             .toUriString()
     }
 
-    private fun hash(key: String): String? {
+    private fun hash(key: String): String {
         return nameHashGenerator.hash(key)
     }
 
