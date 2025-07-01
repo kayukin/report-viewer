@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.kayukin"
-version = "0.1.1-SNAPSHOT"
+version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {
