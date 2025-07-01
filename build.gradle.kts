@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.kayukin"
-version = "0.0.1-SNAPSHOT"
+version = "0.1.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {
@@ -17,7 +17,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("software.amazon.awssdk:s3:2.26.16")
+
+    implementation(platform("software.amazon.awssdk:bom:2.26.16"))
+    implementation("software.amazon.awssdk:s3")
+    implementation("software.amazon.awssdk:sso")
+    implementation("software.amazon.awssdk:ssooidc")
+    implementation("software.amazon.awssdk:sts")
+
     implementation("com.google.guava:guava:33.2.1-jre")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("org.springframework.boot:spring-boot-starter-validation")
